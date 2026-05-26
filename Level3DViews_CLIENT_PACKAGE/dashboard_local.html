@@ -1,0 +1,166 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Digital Twin Dashboard (Local)</title>
+
+<style>
+body {
+    font-family: Arial;
+    background: #f4f4f4;
+    padding: 20px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.top {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+input, select {
+    padding: 8px;
+    margin: 5px;
+}
+
+.row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: white;
+    margin: 8px auto;
+    padding: 12px;
+    width: 950px;
+    border-radius: 8px;
+}
+
+.asset {
+    font-weight: bold;
+}
+
+.actions button {
+    margin-left: 5px;
+    padding: 5px 8px;
+    cursor: pointer;
+}
+
+#videoPlayer {
+    width: 650px;
+    display: block;
+    margin: 20px auto;
+}
+</style>
+</head>
+
+<body>
+
+<h1>Digital Twin Dashboard (Local)</h1>
+
+<div class="top">
+<input type="text" id="search" placeholder="Search asset..." onkeyup="render()">
+
+<select id="viewFilter" onchange="render()">
+<option value="">All Views</option>
+</select>
+
+<select id="roomFilter" onchange="render()">
+<option value="">All Rooms</option>
+</select>
+
+<h3 id="count"></h3>
+</div>
+
+<video id="videoPlayer" controls></video>
+
+<div id="list"></div>
+
+<script>
+
+const data = [{"asset": "DT_MJ_2-MJ 2_25", "view": "3D_Level 1_to_Level 2", "room": "MJ 2_25", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_2-MJ 2_25/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_2-MJ 2_25", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_2-MJ 2_25/DT_MJ_2-MJ 2_25.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_2-MJ 2_25/DT_MJ_2-MJ 2_25_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_2-MJ 2_25/DT_MJ_2-MJ 2_25_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_2-MJ 2_25/DT_MJ_2-MJ 2_25_CM.mp4"}, {"asset": "DT_MJ_3-MJ 2_25", "view": "3D_Level 1_to_Level 2", "room": "MJ 2_25", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_3-MJ 2_25/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_3-MJ 2_25", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_3-MJ 2_25/DT_MJ_3-MJ 2_25.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_3-MJ 2_25/DT_MJ_3-MJ 2_25_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_3-MJ 2_25/DT_MJ_3-MJ 2_25_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_3-MJ 2_25/DT_MJ_3-MJ 2_25_CM.mp4"}, {"asset": "DT_MJ_4-MJ 2_25", "view": "3D_Level 1_to_Level 2", "room": "MJ 2_25", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_4-MJ 2_25/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_4-MJ 2_25", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_4-MJ 2_25/DT_MJ_4-MJ 2_25.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_4-MJ 2_25/DT_MJ_4-MJ 2_25_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_4-MJ 2_25/DT_MJ_4-MJ 2_25_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_4-MJ 2_25/DT_MJ_4-MJ 2_25_CM.mp4"}, {"asset": "DT_MJ_5-MJ 2_25", "view": "3D_Level 1_to_Level 2", "room": "MJ 2_25", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_5-MJ 2_25/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_5-MJ 2_25", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_5-MJ 2_25/DT_MJ_5-MJ 2_25.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_5-MJ 2_25/DT_MJ_5-MJ 2_25_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_5-MJ 2_25/DT_MJ_5-MJ 2_25_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_5-MJ 2_25/DT_MJ_5-MJ 2_25_CM.mp4"}, {"asset": "DT_MJ_6-MJ 2_25", "view": "3D_Level 1_to_Level 2", "room": "MJ 2_25", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_6-MJ 2_25/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_6-MJ 2_25", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_6-MJ 2_25/DT_MJ_6-MJ 2_25.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_6-MJ 2_25/DT_MJ_6-MJ 2_25_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_6-MJ 2_25/DT_MJ_6-MJ 2_25_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_6-MJ 2_25/DT_MJ_6-MJ 2_25_CM.mp4"}, {"asset": "DT_MJ_7-MJ 2_25", "view": "3D_Level 1_to_Level 2", "room": "MJ 2_25", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_7-MJ 2_25/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_7-MJ 2_25", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_7-MJ 2_25/DT_MJ_7-MJ 2_25.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_7-MJ 2_25/DT_MJ_7-MJ 2_25_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_7-MJ 2_25/DT_MJ_7-MJ 2_25_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_7-MJ 2_25/DT_MJ_7-MJ 2_25_CM.mp4"}, {"asset": "DT_MJ_8-MJ 2_25", "view": "3D_Level 1_to_Level 2", "room": "MJ 2_25", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_8-MJ 2_25/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_8-MJ 2_25", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_8-MJ 2_25/DT_MJ_8-MJ 2_25.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_8-MJ 2_25/DT_MJ_8-MJ 2_25_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_8-MJ 2_25/DT_MJ_8-MJ 2_25_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 2_25/DT_MJ_8-MJ 2_25/DT_MJ_8-MJ 2_25_CM.mp4"}, {"asset": "DT_MJ_31-MJ 7_21", "view": "3D_Level 1_to_Level 2", "room": "MJ 7_21", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_31-MJ 7_21/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_31-MJ 7_21", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_31-MJ 7_21/DT_MJ_31-MJ 7_21.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_31-MJ 7_21/DT_MJ_31-MJ 7_21_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_31-MJ 7_21/DT_MJ_31-MJ 7_21_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_31-MJ 7_21/DT_MJ_31-MJ 7_21_CM.mp4"}, {"asset": "DT_MJ_32-MJ 7_21", "view": "3D_Level 1_to_Level 2", "room": "MJ 7_21", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_32-MJ 7_21/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_32-MJ 7_21", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_32-MJ 7_21/DT_MJ_32-MJ 7_21.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_32-MJ 7_21/DT_MJ_32-MJ 7_21_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_32-MJ 7_21/DT_MJ_32-MJ 7_21_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_32-MJ 7_21/DT_MJ_32-MJ 7_21_CM.mp4"}, {"asset": "DT_MJ_33-MJ 7_21", "view": "3D_Level 1_to_Level 2", "room": "MJ 7_21", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_33-MJ 7_21/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_33-MJ 7_21", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_33-MJ 7_21/DT_MJ_33-MJ 7_21.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_33-MJ 7_21/DT_MJ_33-MJ 7_21_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_33-MJ 7_21/DT_MJ_33-MJ 7_21_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_33-MJ 7_21/DT_MJ_33-MJ 7_21_CM.mp4"}, {"asset": "DT_MJ_34-MJ 7_21", "view": "3D_Level 1_to_Level 2", "room": "MJ 7_21", "viewer": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_34-MJ 7_21/viewer.html", "images": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_34-MJ 7_21", "clean": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_34-MJ 7_21/DT_MJ_34-MJ 7_21.mp4", "meta": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_34-MJ 7_21/DT_MJ_34-MJ 7_21_M.mp4", "comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_34-MJ 7_21/DT_MJ_34-MJ 7_21_C.mp4", "meta_comp": "file:///C:/Users/jjakhema/OneDrive - Johnson Controls/01. BIM Project Data/01. Digital Twin Projects/Digital Twin Project/01_Mayui Trial Project/Level3DViews/3D_Level 1_to_Level 2/MJ 7_21/DT_MJ_34-MJ 7_21/DT_MJ_34-MJ 7_21_CM.mp4"}];
+
+// ✅ populate dropdowns
+let views = [...new Set(data.map(d => d.view))];
+let rooms = [...new Set(data.map(d => d.room))];
+
+views.forEach(v => {
+    let o = document.createElement("option");
+    o.value = v;
+    o.text = v;
+    document.getElementById("viewFilter").appendChild(o);
+});
+
+rooms.forEach(r => {
+    let o = document.createElement("option");
+    o.value = r;
+    o.text = r;
+    document.getElementById("roomFilter").appendChild(o);
+});
+
+
+// ✅ render function
+function render() {
+
+    let search = document.getElementById("search").value.toLowerCase();
+    let viewF = document.getElementById("viewFilter").value;
+    let roomF = document.getElementById("roomFilter").value;
+
+    let html = "";
+    let count = 0;
+
+    for (let item of data) {
+
+        if (
+            item.asset.toLowerCase().includes(search) &&
+            (viewF === "" || item.view === viewF) &&
+            (roomF === "" || item.room === roomF)
+        ) {
+
+            html += `
+            <div class="row">
+                <div class="asset">${item.asset}</div>
+
+                <div class="actions">
+                    <button onclick="openLink('${item.viewer}')">Viewer</button>
+                    <button onclick="openLink('${item.images}')">Images</button>
+                    <button onclick="playVideo('${item.clean}')">▶ Clean</button>
+                    <button onclick="playVideo('${item.meta}')">▶ Meta</button>
+                    <button onclick="playVideo('${item.comp}')">▶ Comp</button>
+                    <button onclick="playVideo('${item.meta_comp}')">▶ Meta Comp</button>
+                </div>
+            </div>
+            `;
+
+            count++;
+            if (count > 200) break;
+        }
+    }
+
+    document.getElementById("count").innerText =
+        "Showing: " + count + " assets";
+
+    document.getElementById("list").innerHTML = html;
+}
+
+
+// ✅ video player
+function playVideo(url) {
+    let v = document.getElementById("videoPlayer");
+    v.src = url;
+    v.play();
+    v.scrollIntoView();
+}
+
+
+// ✅ open local links
+function openLink(url) {
+    if (url) window.open(url, "_blank");
+}
+
+render();
+
+</script>
+
+</body>
+</html>

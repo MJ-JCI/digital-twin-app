@@ -1,0 +1,222 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>360 Viewer</title>
+
+<style>
+
+body {
+    margin: 0;
+    background: #f0f0f0;
+    font-family: Arial;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.main-wrapper {
+    text-align: center;
+}
+
+.viewer-container {
+    width: 900px;
+    height: 600px;
+    background: white;
+    border-radius: 10px;
+
+    position: relative;
+    overflow: hidden;
+}
+
+img {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+
+    transform: translate(-50%, -50%) scale(1);
+    max-width: 90%;
+    max-height: 90%;
+    pointer-events: none;
+}
+
+.panel {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    background: rgba(255,255,255,0.9);
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.slider-box {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+
+    background: rgba(255,255,255,0.9);
+    padding: 6px;
+    border-radius: 6px;
+}
+
+button {
+    margin: 4px;
+    padding: 6px 10px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="main-wrapper">
+
+<h2>360 Asset Viewer</h2>
+
+<div class="viewer-container">
+
+<img id="viewer">
+
+<div class="panel">
+<button onclick="rotateLeft()">⬅</button>
+<button onclick="rotateRight()">➡</button>
+<button onclick="zoomIn()">➕</button>
+<button onclick="zoomOut()">➖</button>
+<button onclick="resetView()">⟲</button>
+<button onclick="toggleDrag()" id="dragBtn">Drag ON</button>
+</div>
+
+<div class="slider-box">
+Sensitivity: <span id="sliderValue">50</span><br>
+<input type="range" id="speedSlider" min="30" max="120" value="50">
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const angles = [0,22,44,66,88,110,132,154,176,198,220,242,264,286,308,330,352,360];
+
+let prefix = "DT_MJ_6-MJ 2_25";
+
+let viewer = document.getElementById("viewer");
+let container = document.querySelector(".viewer-container");
+
+let images = angles.map(a => {
+    let num = String(a).padStart(3, '0');
+    return prefix + "_" + num + ".jpg";
+});
+
+let currentIndex = 0;
+viewer.src = images[currentIndex];
+
+// ✅ DRAG TOGGLE
+let dragEnabled = true;
+function toggleDrag() {
+    dragEnabled = !dragEnabled;
+    document.getElementById("dragBtn").innerText =
+        dragEnabled ? "Drag ON" : "Drag OFF";
+}
+
+// ✅ DRAG ROTATION
+let isDragging = false;
+let lastX = 0;
+let accumulated = 0;
+let threshold = 50;
+
+container.addEventListener("mousedown", (e) => {
+    if (!dragEnabled) return;
+    isDragging = true;
+    lastX = e.clientX;
+    accumulated = 0;
+});
+
+window.addEventListener("mouseup", () => {
+    isDragging = false;
+});
+
+window.addEventListener("mousemove", (e) => {
+
+    if (!isDragging || !dragEnabled) return;
+
+    let delta = e.clientX - lastX;
+    lastX = e.clientX;
+
+    accumulated += delta;
+
+    threshold = document.getElementById("speedSlider").value;
+
+    if (Math.abs(accumulated) >= threshold) {
+        let steps = Math.floor(accumulated / threshold);
+        currentIndex += steps;
+        accumulated %= threshold;
+        updateFrame();
+    }
+});
+
+function updateFrame() {
+    let frame = currentIndex % images.length;
+    if (frame < 0) frame += images.length;
+    viewer.src = images[frame];
+}
+
+function rotateLeft() {
+    currentIndex--;
+    updateFrame();
+}
+
+function rotateRight() {
+    currentIndex++;
+    updateFrame();
+}
+
+let zoom = 1;
+
+function zoomIn() {
+    zoom += 0.1;
+    applyZoom();
+}
+
+function zoomOut() {
+    zoom -= 0.1;
+    applyZoom();
+}
+
+function applyZoom() {
+    zoom = Math.max(0.5, Math.min(zoom, 2));
+
+    viewer.style.transform =
+        "translate(-50%, -50%) scale(" + zoom + ")";
+}
+
+// ✅ SCROLL ZOOM
+container.addEventListener("wheel", function(e) {
+    e.preventDefault();
+    zoom += e.deltaY * -0.001;
+    applyZoom();
+});
+
+function resetView() {
+    zoom = 1;
+    currentIndex = 0;
+    applyZoom();
+    updateFrame();
+}
+
+let slider = document.getElementById("speedSlider");
+let sliderValue = document.getElementById("sliderValue");
+
+sliderValue.innerText = slider.value;
+slider.oninput = () => sliderValue.innerText = slider.value;
+
+</script>
+
+</body>
+</html>
