@@ -1,0 +1,70 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<title>Image Viewer</title>
+
+<style>
+body {
+    margin: 0;
+    background: black;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+img {
+    max-width: 90%;
+    max-height: 90%;
+}
+</style>
+</head>
+
+<body>
+
+<img id="img">
+
+<script>
+
+let images = ["DT_MJ_33-MJ 7_21_000.jpg",
+"DT_MJ_33-MJ 7_21_022.jpg",
+"DT_MJ_33-MJ 7_21_044.jpg",
+"DT_MJ_33-MJ 7_21_066.jpg",
+"DT_MJ_33-MJ 7_21_088.jpg",
+"DT_MJ_33-MJ 7_21_110.jpg",
+"DT_MJ_33-MJ 7_21_132.jpg",
+"DT_MJ_33-MJ 7_21_154.jpg",
+"DT_MJ_33-MJ 7_21_176.jpg",
+"DT_MJ_33-MJ 7_21_198.jpg",
+"DT_MJ_33-MJ 7_21_220.jpg",
+"DT_MJ_33-MJ 7_21_242.jpg",
+"DT_MJ_33-MJ 7_21_264.jpg",
+"DT_MJ_33-MJ 7_21_286.jpg",
+"DT_MJ_33-MJ 7_21_308.jpg",
+"DT_MJ_33-MJ 7_21_330.jpg",
+"DT_MJ_33-MJ 7_21_352.jpg",
+"DT_MJ_33-MJ 7_21_360.jpg"];
+let index = 0;
+
+function showImage() {
+    document.getElementById("img").src = images[index];
+}
+
+document.body.onkeydown = function(e) {
+    if (e.key === "ArrowRight") {
+        index = (index + 1) % images.length;
+        showImage();
+    }
+    else if (e.key === "ArrowLeft") {
+        index = (index - 1 + images.length) % images.length;
+        showImage();
+    }
+}
+
+showImage();
+
+</script>
+
+</body>
+</html>
